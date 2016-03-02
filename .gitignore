@@ -2,3 +2,4 @@
 .project
 src/HeatMap/Original*
 bin/HeatMap/Original*
+.class
