@@ -33,11 +33,32 @@ public class HeatMap extends JPanel{
 	public String title;
 	private boolean margin = false;
 	private boolean labels = false;
+	private boolean whiteZero;
+	private boolean testhue;
+	
+	public HeatMap(double[][] data) {
+		this.pixelSize = 10;
+		this.data = data;
+		this.title = "";
+		this.whiteZero = true;
+		max = -Double.MAX_VALUE;
+		min = Double.MAX_VALUE;
+		for (int i=0; i<data.length; i++) {
+			for(int j=0; j<data[i].length; j++) {
+				max = Math.max(max, data[i][j]);
+				min = Math.min(min, data[i][j]);
+			}
+		}
+		range = max-min;
+		whiteZero = true;
+		testhue = true;
+	}
 
 	public HeatMap(int pixelSize, double[][] data, String title){
 		this.pixelSize = pixelSize;
 		this.data = data;
 		this.title = title;
+		this.whiteZero = true;
 		max = -Double.MAX_VALUE;
 		min = Double.MAX_VALUE;
 		for (int i=0; i<data.length; i++) {
@@ -144,9 +165,9 @@ public class HeatMap extends JPanel{
         	g2.setPaint(Color.black);
         	g2.drawString("0."+i, xMargin + xcoor - 7, yMargin + data.length*pixelSize + 20);
         	g2.drawString("0."+(9-i), xMargin - 30, yMargin + ycoor + 3);*/
-            g2.drawLine((int)(xcoor), 0, (int)(xcoor), data.length*pixelSize);
+/*            g2.drawLine((int)(xcoor), 0, (int)(xcoor), data.length*pixelSize);
         	g2.drawLine(0, (int) (ycoor), data[0].length*pixelSize, (int) (ycoor));
-        	g2.setPaint(Color.black);
+        	g2.setPaint(Color.black);*/
         	//The label axis for the grid
         	/*g2.drawString("0."+i, xMargin + xcoor - 7, yMargin + data.length*pixelSize + 20);
         	g2.drawString("0."+(9-i), xMargin - 30, yMargin + ycoor + 3);*/
@@ -165,7 +186,7 @@ public class HeatMap extends JPanel{
 	        g2.drawLine(xMargin-40, yMargin + data.length*pixelSize, xMargin-50, yMargin + data.length*pixelSize);
 	        g2.drawLine(xMargin-40, yMargin, xMargin-50, yMargin);
 	        g2.drawLine(xMargin-45, yMargin + data.length*pixelSize/2, xMargin-50, yMargin + data.length*pixelSize/2);
-        } else {
+        } else if (labels) {
         	 //Draw X axis line
 	        g2.drawLine(0, data.length*pixelSize + 40, 0, data.length*pixelSize + 50);
 	        g2.drawLine(data[0].length*pixelSize, data.length*pixelSize + 40, data[0].length*pixelSize, data.length*pixelSize + 50);
@@ -194,60 +215,41 @@ public class HeatMap extends JPanel{
 	
 	//Determine the color for the given point
 	public Color getGradientColor(double value) {
-    	//If zero set to white
     	double place;
     	Float hue;
+    	
     	// Return white for NaNs
     	if(Double.isNaN(value)) {
     		return(Color.white);
     	}
-    	if (!whiteZero) {
-        	place = (value-min);
-        	hue = (float) (1-(place/size));
-	    	if (hue.compareTo(0.25f) <= 0) {
-	    		float percentage = hue/0.25f;
-	    		return new Color(255, (int) Math.max(0, (255 * percentage)), 0);
-	    	} else if (hue.compareTo(0.5f) <= 0) {
-	    		float percentage = (hue-0.25f)/0.25f;
-	    		return new Color((int) (255-(255*percentage)), 255, (int) (255 * percentage / 2));
-	    	} else if (hue.compareTo(0.75f) <= 0) {
-	    		float percentage = (hue-0.5f)/0.25f;
-	    		return new Color(0, (int) (255-(155*percentage)), 255);
-	    	} else {
-	    		float percentage = (hue-0.75f)/0.25f;
-	    		return new Color((int) Math.min(255, (255 * percentage)), 0, 255);
-	    	}
-	    	//return new Color(Color.HSBtoRGB(hue, 1.0f, 1.0f));
+
+    	float percentage = 0.0f;
+		place = (value-min);
+    	hue = (float) (1-(place/range));
+    	float ratio = 1.0f/11.0f;
+    	
+    	if (whiteZero && Double.compare(value, 0) == 0) {
+			return Color.WHITE;
+    	}
+    	
+    	if (hue.compareTo(1.0f/11.0f) <= 0) {
+    		percentage = hue/ratio;
+    		return new Color(255, 0, Math.min(255, (int) (128 * (1 + percentage))));
+    	} else if (hue.compareTo(3.0f/11.0f) <= 0) {
+    		percentage = (hue - ratio)/(2 * ratio);
+    		return new Color(Math.max(0, (int) (255 - (255 * percentage))), 0, 255);
+    	} else if (hue.compareTo(5.0f/11.0f) <= 0) {
+    		percentage = (hue - 3 * ratio)/(2 * ratio);
+    		return new Color(0, Math.min(255, (int) (255 * percentage)), 255);
+    	} else if (hue.compareTo(7.0f/11.0f) <= 0) {
+    		percentage = (hue - 5 * ratio)/(2 * ratio);
+    		return new Color(0, 255, Math.max(0, (int) (255 - (255 * percentage))));
+    	} else if (hue.compareTo(9.0f/11.0f) <= 0) {
+    		percentage = (hue - 7 * ratio)/(2 * ratio);
+    		return new Color(Math.min(255, (int) (255 * percentage)), 255, 0);
     	} else {
-    		if (Double.compare(value, 0) == 0) {
-    			return Color.WHITE;
-    		} else if (Double.compare(value, 0) > 0) {
-    			//Color is positive
-    			place = (value-posMin);
-    			hue = (float) (1-(place/posSize));
-    			if (hue.compareTo(0.5f) < 0) {
-    				//4th Quartile - highest positive values
-    	    		float percentage = (hue)/0.5f;
-    	    		return new Color(255, (int) Math.max(0, (255 * percentage)), 0);
-    			} else {
-    				//3rd Quartile - Values just above zero
-    				float percentage = (hue-0.5f)/0.5f;
-    	    		return new Color((int) (255-(255*percentage)), 255, (int) (255 * percentage / 2));
-    			}
-    		} else {
-    			//Color is negative
-    			place = (value-negMin);
-    			hue = (float) (1-(place/negSize));
-    			if (hue.compareTo(0.5f) < 0) {
-    				//2nd Quartile - Values just below zero
-    	    		float percentage = (hue)/0.5f;
-    	    		return new Color(0, (int) (255-(155*percentage)), 255);
-    			} else {
-    				//1st Quartile - lowest negative values
-    	    		float percentage = (hue-0.5f)/0.5f;
-    	    		return new Color((int) Math.min(255, (255 * percentage)), 0, 255);
-    			}
-    		}
+    		percentage = (hue - 9 * ratio)/(2 * ratio);
+    		return new Color(255, Math.max(0, (int) (255 - (255 * percentage))), 0);
     	}
     	
     }

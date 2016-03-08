@@ -3,3 +3,6 @@
 src/HeatMap/Original*
 bin/HeatMap/Original*
 .class
+/bin/
+/target/
+.settings/
