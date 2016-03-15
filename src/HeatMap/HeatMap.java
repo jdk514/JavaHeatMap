@@ -226,6 +226,7 @@ public class HeatMap extends JPanel{
     	float percentage = 0.0f;
 		place = (value-min);
     	hue = (float) (1-(place/range));
+    	hue = 1-hue;
     	float ratio = 1.0f/11.0f;
     	
     	if (whiteZero && Double.compare(value, 0) == 0) {
