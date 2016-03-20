@@ -34,7 +34,7 @@ public class RainbowTest {
 			}
 		}
 		
-		LabeledHeatMap rainbow = new LabeledHeatMap(data);
+		LabeledHeatMap rainbow = new LabeledHeatMap(data, true, "Meters", "Meters", "Rainbow Test", true, 30, 7);
 		JFrame frame = new JFrame();
 		frame.setSize(frameSize, frameSize);
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

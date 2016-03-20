@@ -2,12 +2,7 @@ package heatMapTests;
 
 import static org.junit.Assert.*;
 
-import java.awt.Color;
-import java.awt.Robot;
-import java.awt.image.BufferedImage;
-
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
 import org.junit.Test;
@@ -15,6 +10,11 @@ import org.junit.Test;
 import HeatMap.HeatMap;
 
 public class RainbowTest {
+	
+	public static void main(String args[]) {
+		RainbowTest rt = new RainbowTest();
+		rt.Rainbow();
+	}
 	
 	@Test
 	public void test() {
@@ -34,9 +34,10 @@ public class RainbowTest {
 			}
 		}
 		
-		HeatMap rainbow = new HeatMap(data);
+		HeatMap rainbow = new HeatMap(data, false);
 		JFrame frame = new JFrame();
-		frame.setSize(frameSize, frameSize);
+		frame.setResizable(false);
+		frame.setSize(304, 335);
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		frame.add(rainbow);
